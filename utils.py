@@ -14,7 +14,14 @@ def calculate_metrics(img1, img2, lpips_fn):
 
     batch_psnr, batch_ssim = 0, 0
     for i in range(img1_np.shape[0]):
-        batch_psnr += psnr(img1_np[i], img2_np[i], data_range=1.0)
+        """计算psnr"""
+        max_i = 1.0   #默认最大值为1.0，图像已经归一化
+        mse_i = np.mean((img1_np[i] - img2_np[i]) ** 2)
+        if mse_i <= 1e-10:
+            batch_psnr += 100.0
+        else:
+            batch_psnr += 10.0 * np.log10(max_i**2 / mse_i)
+        # batch_psnr += psnr(img1_np[i], img2_np[i], data_range=1.0)
         batch_ssim += ssim(img1_np[i], img2_np[i], data_range=1.0, multichannel=True, channel_axis=2, win_size=7)
 
     avg_psnr = batch_psnr / img1_np.shape[0]
